@@ -31,4 +31,8 @@ public class DataGateAuthenticatorFactory {
     public DataGateAuthenticator get(){
         return authenticator;
     }
+    
+    public void setAuthenticator(DataGateAuthenticator authenticator){
+        this.authenticator = authenticator;
+    }
 }

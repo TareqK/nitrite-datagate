@@ -30,6 +30,10 @@ public class DataGateBusFactory {
         return bus;
     }
     
+    public void setBus(DataGateBus bus){
+        this.bus = bus;
+    }
+    
     
     
 }
