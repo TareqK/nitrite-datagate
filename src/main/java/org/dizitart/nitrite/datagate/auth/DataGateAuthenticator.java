@@ -14,10 +14,10 @@ import javax.websocket.Session;
  *
  * @author tareq
  */
-public abstract class SocketAuthenticator {
+public abstract class DataGateAuthenticator {
 
     private static final String BASIC = "Basic";
-    private static final Logger LOG = Logger.getLogger(SocketAuthenticator.class.getName());
+    private static final Logger LOG = Logger.getLogger(DataGateAuthenticator.class.getName());
 
     public boolean authenticate(Session session, String authorization) {
 

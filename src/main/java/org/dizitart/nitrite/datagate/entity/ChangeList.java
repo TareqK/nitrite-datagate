@@ -19,5 +19,6 @@ import lombok.Setter;
 @Setter
 public class ChangeList {
     
-    List<Map> changes = new ArrayList<>();
+    private List<Map> changes = new ArrayList<>();
+    private String collection;
 }

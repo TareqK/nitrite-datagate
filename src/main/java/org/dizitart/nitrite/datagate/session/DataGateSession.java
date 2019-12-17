@@ -3,14 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.endpoint;
+package org.dizitart.nitrite.datagate.session;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.websocket.CloseReason;
-import javax.websocket.CloseReason.CloseCode;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -19,16 +18,15 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.ws.rs.HeaderParam;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import org.dizitart.nitrite.datagate.config.DataGateConfiguration;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
+import org.dizitart.nitrite.datagate.factory.DataGateAuthenticatorFactory;
+import org.dizitart.nitrite.datagate.factory.DataGateBusFactory;
 import org.dizitart.nitrite.datagate.factory.DataGateServiceFactory;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcError;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcRequest;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse;
 import org.dizitart.nitrite.datagate.jsonrpc.decoder.JsonRpcDecoder;
 import org.dizitart.nitrite.datagate.jsonrpc.encoder.JsonRpcEncoder;
-import org.dizitart.nitrite.datagate.session.DataGateSessionManager;
-import org.dizitart.nitrite.datagate.session.DataGateSessionManagerImpl;
 import org.dizitart.nitrite.datagate.service.DataGateService;
 
 /**
@@ -38,23 +36,27 @@ import org.dizitart.nitrite.datagate.service.DataGateService;
 @ServerEndpoint(value = "/datagate",
         decoders = JsonRpcDecoder.class,
         encoders = JsonRpcEncoder.class)
-public class DatagateEndpoint {
+public class DataGateSession {
 
-    private static final Logger LOG = Logger.getLogger(DatagateEndpoint.class.getName());
+    private static final Logger LOG = Logger.getLogger(DataGateSession.class.getName());
+    private static final String UPDATE = "update";
+    private final List<String> collections = new ArrayList<>();
+    private Session session;
     
     @OnOpen
     public void onOpen(Session session, @HeaderParam(AUTHORIZATION) String authorizationHeader) throws IOException {
-        boolean isAuth = DataGateConfiguration.getInstance().authenticator().authenticate(session, authorizationHeader);
-        if (isAuth) {
-            DataGateSessionManagerImpl.getInstance().addSession(session);
-        } else {
+        boolean isAuth = DataGateAuthenticatorFactory.getInstance().get().authenticate(session, authorizationHeader);
+        if (!isAuth) {
             session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "This session is not authenticated"));
         }
+        this.session = session;
+        DataGateBusFactory.getInstance().get().subscribe(this);
     }
+
 
     @OnMessage
     public void onMessage(Session session, JsonRpcRequest request) throws IOException {
-        DataGateService dataGateService = DataGateServiceFactory.getInstance().get(session);
+        DataGateService dataGateService = DataGateServiceFactory.getInstance().get(this);
         JsonRpcResponse response = null ;
         switch(request.getMethod()){
             case DataGateService.GET_COLLECTION:
@@ -68,8 +70,11 @@ public class DatagateEndpoint {
                         .build();
                 break;
             case DataGateService.CHANGE:
-                dataGateService.change(request.getParamAs("changeList", ChangeList.class),
-                        request.getParamAs("collection", String.class));
+                dataGateService.change(request.getParamAs("changeList", ChangeList.class));
+                response = request.responseBuilder().build();
+                break;
+            case DataGateService.SUBSCRIBE:
+                dataGateService.subscribe(this, request.getParamAs("collection", String.class));
                 response = request.responseBuilder().build();
                 break;
             default:
@@ -80,11 +85,29 @@ public class DatagateEndpoint {
 
     @OnClose
     public void onClose(Session session) throws IOException {
-        DataGateSessionManagerImpl.getInstance().removeSession(session);
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
        LOG.severe(throwable.getMessage());
     }
+    
+    public void listenToCollection(String collectionName){
+        collections.add(collectionName);
+    }
+    
+    public void push(ChangeList changeList){
+        if(this.collections.contains(changeList.getCollection())){
+            this.session.getAsyncRemote().sendObject( JsonRpcResponse.builder().id(UPDATE).result(session).build());
+        }
+    
+    }
+    
+    public Session getSession(){
+        return this.session;
+    }
+    
+   public String getSessionUser(){
+       return String.valueOf(session.getUserProperties().get("username"));
+   }
 }

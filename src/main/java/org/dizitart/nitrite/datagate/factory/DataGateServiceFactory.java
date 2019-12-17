@@ -8,6 +8,7 @@ package org.dizitart.nitrite.datagate.factory;
 import javax.websocket.Session;
 import org.dizitart.nitrite.datagate.service.DataGateService;
 import org.dizitart.nitrite.datagate.service.DataGateServiceDummyImpl;
+import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /**
  *
@@ -33,8 +34,8 @@ public class DataGateServiceFactory {
        return service;
     }
     
-     public DataGateService get(Session session){
-       return get(String.valueOf(session.getUserProperties().get("username")));
+     public DataGateService get(DataGateSession  session){
+       return get(session.getSessionUser());
     }
  
 }
