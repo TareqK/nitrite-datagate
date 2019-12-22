@@ -5,22 +5,45 @@
  */
 package org.dizitart.nitrite.datagate.repository;
 
-import java.util.List;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
 
 /**
  *
  * @author tareq
  */
-public interface DataGateChangeListRepository {
+public abstract class DataGateChangeListRepository {
 
-    String getUser();
+  private String user;
 
-    void setUser(String user);
+  public String getUser() {
+    return user;
+  }
 
-    void update(ChangeList changeList);
+  public void setUser(String user) {
+    this.user = user;
+  }
 
-    ChangeList getSince(String collection, long millis);
+  /**
+   * Updates the database with these changes
+   *
+   * @param changeList the changelist to apply to the database
+   */
+  public abstract void updateCollectionData(ChangeList changeList);
 
-    ChangeList getAll(String collection);
+  /**
+   * Gets all changes since a timestamp
+   *
+   * @param collection the collection to get changes on
+   * @param millis the time stamp in millisceonds since epoch to look after
+   * @return a change list
+   */
+  public abstract ChangeList getChangesOnCollectionSince(String collection, long millis);
+
+  /**
+   * Gets all the entries in a collection
+   *
+   * @param collection the collection to get the entries for
+   * @return a change list containing all the collection's data
+   */
+  public abstract ChangeList getCollectionData(String collection);
 }

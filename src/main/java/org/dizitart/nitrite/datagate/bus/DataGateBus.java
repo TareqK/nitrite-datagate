@@ -5,7 +5,6 @@
  */
 package org.dizitart.nitrite.datagate.bus;
 
-import javax.websocket.Session;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
 import org.dizitart.nitrite.datagate.session.DataGateSession;
 
@@ -14,11 +13,29 @@ import org.dizitart.nitrite.datagate.session.DataGateSession;
  * @author tareq
  */
 public interface DataGateBus {
-    
-    void subscribe(DataGateSession session);
-    
-    void unsubscribe(DataGateSession session);
-    
-    void publish(ChangeList event, String username);
-    
+
+  /**
+   * Subscribe this session to listen to this bus. The user property is extracted from the session, and the user's sessions are all kept in
+   * a list
+   *
+   * @param session the session to subscribe
+   */
+  void subscribe(DataGateSession session);
+
+  /**
+   * Remove this session from listening to this bus. The user property is extracted form the session, and the users session is removed from
+   * that user's list
+   *
+   * @param session the session to unsubscribe
+   */
+  void unsubscribe(DataGateSession session);
+
+  /**
+   * Publishes a changelist to a user's sessions
+   *
+   * @param changeList the change list to publish
+   * @param username the username of the user to publish ti
+   */
+  void publish(ChangeList changeList, String username);
+
 }

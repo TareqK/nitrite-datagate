@@ -5,35 +5,44 @@
  */
 package org.dizitart.nitrite.datagate.factory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 import org.dizitart.nitrite.datagate.bus.DataGateBus;
-import org.dizitart.nitrite.datagate.bus.DataGateBusDummyImpl;
+import org.dizitart.nitrite.datagate.bus.DataGateBusDefaultImpl;
 
 /**
  *
  * @author tareq
  */
 public class DataGateBusFactory {
-    
-    private static DataGateBusFactory instance = getInstance();
-    private DataGateBus bus = new DataGateBusDummyImpl();
-    private DataGateBusFactory(){
-        
+
+  private static DataGateBusFactory instance = getInstance();
+  private DataGateBus bus = new DataGateBusDefaultImpl();
+  private static final Logger LOG = Logger.getLogger(DataGateBusFactory.class.getName());
+
+  private DataGateBusFactory() {
+
+  }
+
+  public static final DataGateBusFactory getInstance() {
+    if (instance == null) {
+      instance = new DataGateBusFactory();
     }
-    public static final DataGateBusFactory getInstance(){
-        if(instance == null){
-            instance = new DataGateBusFactory();
-        }
-        return instance;
+    return instance;
+  }
+
+  public DataGateBus get() {
+    return bus;
+  }
+
+  public void setBus(Class<? extends DataGateBus> clazz) {
+    try {
+      this.bus = clazz.getDeclaredConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+      LOG.severe(ex.getMessage());
+      LOG.info("Bus class not found, defaulting to default bus");
+      this.bus = new DataGateBusDefaultImpl();
     }
-    
-    public DataGateBus get(){
-        return bus;
-    }
-    
-    public void setBus(DataGateBus bus){
-        this.bus = bus;
-    }
-    
-    
-    
+  }
+
 }

@@ -17,10 +17,19 @@ public abstract class DataGateAuthenticator {
 
   private static final Logger LOG = Logger.getLogger(DataGateAuthenticator.class.getName());
 
+  /**
+   * Authenticates a user's session. If they are authenticated, then this marks the session as authenticated and inserts the username into
+   * the session properties
+   *
+   * @param session the session to authenticate
+   * @param username the username of the user
+   * @param password the password of the user
+   * @return whether the session was authenticated or not
+   */
   public boolean authenticate(DataGateSession session, String username, String password) {
 
     try {
-      session.getSession().getUserProperties().put("username", username);
+      session.getSocketSession().getUserProperties().put("username", username);
       boolean authenticated = doAuthentication(username, password);
       session.setAuthenticated(authenticated);
       return authenticated;
@@ -30,5 +39,12 @@ public abstract class DataGateAuthenticator {
     }
   }
 
+  /**
+   * Do the authentication for the session
+   *
+   * @param username the username to check
+   * @param password the password to check
+   * @return true if the user is authenticated, false otherwise
+   */
   abstract boolean doAuthentication(String username, String password);
 }

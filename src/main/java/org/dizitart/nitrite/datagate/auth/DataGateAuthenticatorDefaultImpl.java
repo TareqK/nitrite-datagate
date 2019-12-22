@@ -9,7 +9,7 @@ package org.dizitart.nitrite.datagate.auth;
  *
  * @author tareq
  */
-public class DummyDataGateAuthenticatorImpl extends DataGateAuthenticator {
+public class DataGateAuthenticatorDefaultImpl extends DataGateAuthenticator {
 
     @Override
     boolean doAuthentication(String username, String password) {

@@ -5,20 +5,22 @@
  */
 package org.dizitart.nitrite.datagate.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A Class representing a list of changes
  *
  * @author tareq
  */
 @Getter
 @Setter
-public class ChangeList {
+@NoArgsConstructor
+public class ChangeItem {
 
-  private List<ChangeItem> changes = new ArrayList<>();
-  private String collection;
+  private String _id;
+  private long _timestamp;
+  private Map<String, Object> changes = new LinkedHashMap<>();
 }

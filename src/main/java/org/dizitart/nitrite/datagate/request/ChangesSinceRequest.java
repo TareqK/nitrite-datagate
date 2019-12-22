@@ -18,6 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChangesSinceRequest {
 
-  private String collectionName;
-  private long timeStamp;
+  private String collection;
+  private long timestamp;
 }
