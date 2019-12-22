@@ -6,7 +6,7 @@
 package org.dizitart.nitrite.datagate.session;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.logging.Logger;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -47,7 +47,7 @@ public class DataGateSession {
 
   private static final Logger LOG = Logger.getLogger(DataGateSession.class.getName());
 
-  private final HashSet<String> listeningCollections = new HashSet<>();
+  private final HashMap<String, String> listeningCollections = new HashMap<>();
   private Session socketSession;
   private boolean authenticated = false;
 
@@ -70,7 +70,7 @@ public class DataGateSession {
         response = request.responseBuilder().result(authenticationResponse).build();
       } else {
         switch (request.getMethod()) {
-          case DataGateService.GET_COLLECTION:
+          case DataGateService.GET_COLLECTION_DATA:
             ChangesSinceRequest getCollectionRequest = request.getParamAs(ChangesSinceRequest.class);
             ChangeListResponse getCollectionResponse = new ChangeListResponse();
             getCollectionResponse.setChangeList(dataGateService.getCollection(getCollectionRequest.getCollection()));
@@ -90,7 +90,8 @@ public class DataGateSession {
             break;
           case DataGateService.SUBSCRIBE:
             ChangesSinceRequest subscribeRequest = request.getParamAs(ChangesSinceRequest.class);
-            dataGateService.subscribe(subscribeRequest.getCollection());
+            dataGateService.subscribe(subscribeRequest.getCollection(), request.getId());
+
             response = request.responseBuilder().build();
             break;
           case DataGateService.UNSUBSCRIBE:
@@ -118,13 +119,13 @@ public class DataGateSession {
     LOG.severe(throwable.getMessage());
   }
 
-  public void subscribeToCollection(String collectionName) {
-    listeningCollections.add(collectionName);
+  public void subscribeToCollection(String collectionName, String listener) {
+    listeningCollections.put(collectionName, listener);
   }
 
   public void pushChangeList(ChangeList changeList) {
-    if (this.listeningCollections.contains(changeList.getCollection())) {
-      this.socketSession.getAsyncRemote().sendObject(JsonRpcResponse.builder().id(DataGateService.CHANGE).result(changeList).build());
+    if (this.listeningCollections.containsKey(changeList.getCollection())) {
+      this.socketSession.getAsyncRemote().sendObject(JsonRpcResponse.builder().id(this.listeningCollections.get(changeList.getCollection())).result(changeList).build());
     }
 
   }

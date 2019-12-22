@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nitrite Datagate API </title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+    crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+    crossorigin="anonymous"></script>
+
+  <style>
+    .summary-container {
+      word-wrap: break-word;
+    }
+
+    .description-container {
+      word-wrap: break-word;
+    }
+
+    .container {
+      margin: 25px;
+    }
+
+    .card-header>h3 {
+      display: inline;
+    }
+
+    .card-header[data-toggle] {
+      cursor: pointer;
+    }
+
+    .card-header .badge {
+      margin-top: .35rem;
+    }
+
+    textarea {
+      word-wrap: normal !important;
+      white-space: nowrap;
+      height: 200px;
+    }
+
+    .textarea-success {
+      background-color: #dff0d8 !important;
+      border-color: #d0e9c6 !important;
+      color: #3c763d !important;
+    }
+
+    .textarea-danger {
+      background-color: #f2dede !important;
+      border-color: #ebcccc !important;
+      color: #a94442 !important;
+    }
+
+    #toc {
+      position: sticky;
+      top: 25px;
+      height: calc(100vh - 50px);
+      overflow: auto;
+      font-size: 0.75em;
+    }
+
+    .main-col {
+      border-left: 1px solid rgba(0, 0, 0, .1)
+    }
+
+    .nav-link {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+    }
+
+    .schema-preview {
+      max-height: 500px;
+      margin-bottom: 0px;
+    }
+
+    @media (max-width: 992px) {
+      #toc {
+        display: none;
+      }
+      .main-col {
+        border-left: none;
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+  </style>
+
+  <script>
+    var methodsCollapsed = true;
+    var toggleMethods = function () {
+      methodsCollapsed = !methodsCollapsed;
+      if (methodsCollapsed) {
+        $('.collapse').collapse('hide')
+      } else {
+        $('.collapse').collapse('show')
+      }
+    }
+
+    var showSendRequestModal = function (request) {
+      $('#send-request-request').val(JSON.stringify(JSON.parse(decodeURIComponent(request)), null, 4));
+      $('#send-request-response').val('');
+      $("#send-request-response").removeClass("textarea-danger textarea-success");
+      $('#send-request-modal').modal('show')
+    }
+
+    var showExampleModal = function (request, response) {
+      $('#show-example-request').val(JSON.stringify(JSON.parse(decodeURIComponent(request)), null, 4));
+      $('#show-example-response').val(JSON.stringify(JSON.parse(decodeURIComponent(response)), null, 4));
+      $('#show-example-modal').modal('show')
+    }
+
+    var sendRequest = function () {
+      var url = $('#send-request-url').val();
+      var request = $('#send-request-request').val();
+      fetch(url, {
+        method: 'post',
+        body: request,
+      }).then(function (response) {
+        if (response.ok) {
+          response.json().then((rpcResponse) => {
+            $("#send-request-response").val(JSON.stringify(rpcResponse, null, 4));
+            $("#send-request-response").removeClass("textarea-danger").addClass("textarea-success");
+          });
+        } else {
+          $("#send-request-response").val(response.status + ' - ' + response.statusText);
+          $("#send-request-response").removeClass("textarea-success").addClass("textarea-danger");
+        }
+      }).catch(function (error) {
+        $("#send-request-response").val(error);
+        $("#send-request-response").removeClass("textarea-success").addClass("textarea-danger");
+      });
+    }
+
+    $(function () {
+      $('[data-toggle="popover"]').popover();
+      $('#send-request-url').val('http://127.0.0.1:8080');
+    })
+  </script>
+</head>
+
+<body data-spy="scroll" data-target="#toc">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3">
+        <nav id="toc" data-spy="affix" class="affix" data-toggle="toc">
+          <ul class="nav nav-pills flex-column">
+  <li class="nav-item">
+  <a class="nav-link" href="#authenticate">authenticate</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#subscribe">subscribe</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#unsubscribe">unsubscribe</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#change">change</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#getCollectionData">getCollectionData</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#getChangesSince">getChangesSince</a>
+</li>
+
+</ul>
+
+        </nav>
+      </div>
+      <div class="col-lg-9 main-col">
+
+        <h1>Nitrite Datagate API </h1>
+        <div class="introduction">
+          <p>An API to synchronize datagate clients with the datagate server<br>This api follows the json-rpc 2.0 specification. More information available at http://www.jsonrpc.org/specification.</p>
+          <strong>Version: 1.0</strong>
+        </div>
+        <hr>
+        <button type="button" class="btn btn-primary btn-sm" onclick="toggleMethods()">
+          Toggle all
+        </button>
+        <br>
+        <hr> <div class="method" id="authenticate">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#authenticate-content">
+      <h3>authenticate</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="authenticate-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22authenticate%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22username%22%3A%20%22test%22%2C%0A%20%20%20%20%20%20%20%20%22password%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22result%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22authenticated%22%3A%20true%0A%20%20%20%20%7D%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22authenticate%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22username%22%3A%20%22test%22%2C%0A%20%20%20%20%20%20%20%20%22password%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Authenticates the current session</p>
+      </div>
+
+      <br>
+
+      <h4>Description</h4>
+<p class="description-container">Authenticates the user using the provided credentials and creates a new session.</p>
+ <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'username': {
+      'description': 'Username of the user to authenticate.',
+      'default': 'test'
+    },
+    'password': {
+      'description': 'Password of the user to authenticate.',
+      'default': 'test'
+    }
+  },
+  'required': [
+    'username',
+    'password'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'description': 'Username of the user to authenticate.',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.username</td>
+  <td>undefined</td>
+  <td>Username of the user to authenticate.</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'description': 'Password of the user to authenticate.',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.password</td>
+  <td>undefined</td>
+  <td>Password of the user to authenticate.</td>
+</tr>
+
+  </table>
+</div> <br>
+<h4>Result</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'object',
+    'properties': {
+        'authenticated': {
+            'type': 'boolean',
+            'description': 'Whether the credentials are correct or not',
+            'default': true
+        }
+    }
+}</pre>" data-html="true">
+  <td>result</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'boolean',
+    'description': 'Whether the credentials are correct or not',
+    'default': true
+}</pre>" data-html="true">
+  <td>result?.authenticated</td>
+  <td>boolean</td>
+  <td>Whether the credentials are correct or not</td>
+</tr>
+
+  </table>
+</div> 
+    </div>
+  </div>
+</div>
+<br>
+<div class="method" id="subscribe">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#subscribe-content">
+      <h3>subscribe</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="subscribe-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22subscribe%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22result%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22changeItems%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20null%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%7D%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22subscribe%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Subscribes to changes on a collection</p>
+      </div>
+
+      <br>
+
+       <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'collection': {
+      'description': 'The name of the collection to subscribe to',
+      'default': 'test'
+    }
+  },
+  'required': [
+    'collection'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'description': 'The name of the collection to subscribe to',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.collection</td>
+  <td>undefined</td>
+  <td>The name of the collection to subscribe to</td>
+</tr>
+
+  </table>
+</div> <br>
+<h4>Result</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'object',
+    'properties': {
+        'changeItems': {
+            'type': 'array',
+            'description': 'An array of change items for this change list'
+        },
+        'collection': {
+            'type': 'string',
+            'description': 'The name of the collectiont that this change list is for'
+        }
+    },
+    'required': [
+        'changeItems',
+        'collection'
+    ]
+}</pre>" data-html="true">
+  <td>result</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'array',
+    'description': 'An array of change items for this change list'
+}</pre>" data-html="true">
+  <td>result.changeItems</td>
+  <td>array</td>
+  <td>An array of change items for this change list</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'string',
+    'description': 'The name of the collectiont that this change list is for'
+}</pre>" data-html="true">
+  <td>result.collection</td>
+  <td>string</td>
+  <td>The name of the collectiont that this change list is for</td>
+</tr>
+
+  </table>
+</div> 
+    </div>
+  </div>
+</div>
+<br>
+<div class="method" id="unsubscribe">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#unsubscribe-content">
+      <h3>unsubscribe</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="unsubscribe-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22unsubscribe%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22unsubscribe%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Unsubscribes to changes on a collection</p>
+      </div>
+
+      <br>
+
+       <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'collection': {
+      'description': 'The name of the collection to unsubscribe from',
+      'default': 'test'
+    }
+  },
+  'required': [
+    'collection'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'description': 'The name of the collection to unsubscribe from',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.collection</td>
+  <td>undefined</td>
+  <td>The name of the collection to unsubscribe from</td>
+</tr>
+
+  </table>
+</div>  
+    </div>
+  </div>
+</div>
+<br>
+<div class="method" id="change">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#change-content">
+      <h3>change</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="change-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22change%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22changeList%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22changeItems%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20null%0A%20%20%20%20%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22change%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22changeList%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22changeItems%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20null%0A%20%20%20%20%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Applies Changes to a collection</p>
+      </div>
+
+      <br>
+
+       <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'changeList': {
+      'type': 'object',
+      'properties': {
+        'changeItems': {
+          'type': 'array',
+          'description': 'An array of change items for this change list'
+        },
+        'collection': {
+          'type': 'string',
+          'description': 'The name of the collectiont that this change list is for'
+        }
+      },
+      'required': [
+        'changeItems',
+        'collection'
+      ]
+    }
+  },
+  'required': [
+    'changeList'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'changeItems': {
+      'type': 'array',
+      'description': 'An array of change items for this change list'
+    },
+    'collection': {
+      'type': 'string',
+      'description': 'The name of the collectiont that this change list is for'
+    }
+  },
+  'required': [
+    'changeItems',
+    'collection'
+  ]
+}</pre>" data-html="true">
+  <td>params.changeList</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'array',
+  'description': 'An array of change items for this change list'
+}</pre>" data-html="true">
+  <td>params.changeList.changeItems</td>
+  <td>array</td>
+  <td>An array of change items for this change list</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'string',
+  'description': 'The name of the collectiont that this change list is for'
+}</pre>" data-html="true">
+  <td>params.changeList.collection</td>
+  <td>string</td>
+  <td>The name of the collectiont that this change list is for</td>
+</tr>
+
+  </table>
+</div>  
+    </div>
+  </div>
+</div>
+<br>
+<div class="method" id="getCollectionData">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#getCollectionData-content">
+      <h3>getCollectionData</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="getCollectionData-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22getCollectionData%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22result%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22changeItems%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20null%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%7D%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22getCollectionData%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Gets all the data of a  collection</p>
+      </div>
+
+      <br>
+
+       <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'collection': {
+      'type': 'string',
+      'description': 'The name of the collection to get',
+      'default': 'test'
+    }
+  },
+  'required': [
+    'collection'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'string',
+  'description': 'The name of the collection to get',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.collection</td>
+  <td>string</td>
+  <td>The name of the collection to get</td>
+</tr>
+
+  </table>
+</div> <br>
+<h4>Result</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'object',
+    'properties': {
+        'changeItems': {
+            'type': 'array',
+            'description': 'An array of change items for this change list'
+        },
+        'collection': {
+            'type': 'string',
+            'description': 'The name of the collectiont that this change list is for'
+        }
+    },
+    'required': [
+        'changeItems',
+        'collection'
+    ]
+}</pre>" data-html="true">
+  <td>result</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'array',
+    'description': 'An array of change items for this change list'
+}</pre>" data-html="true">
+  <td>result.changeItems</td>
+  <td>array</td>
+  <td>An array of change items for this change list</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'string',
+    'description': 'The name of the collectiont that this change list is for'
+}</pre>" data-html="true">
+  <td>result.collection</td>
+  <td>string</td>
+  <td>The name of the collectiont that this change list is for</td>
+</tr>
+
+  </table>
+</div> 
+    </div>
+  </div>
+</div>
+<br>
+<div class="method" id="getChangesSince">
+  <div class="card">
+    <div class="card-header" data-toggle="collapse" href="#getChangesSince-content">
+      <h3>getChangesSince</h3>
+      <div class="float-right">
+        
+      </div>
+    </div>
+    <div class="card-block collapse" id="getChangesSince-content">
+
+      <div class="summary-container">
+        <div class="float-right">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showExampleModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22getChangesSince%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%2C%0A%20%20%20%20%20%20%20%20%22timestamp%22%3A%2019021723721%0A%20%20%20%20%7D%0A%7D", "%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22result%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22changeItems%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20null%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%7D%0A%7D")'>
+            Show Example
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick='showSendRequestModal("%7B%0A%20%20%20%20%22jsonrpc%22%3A%20%222.0%22%2C%0A%20%20%20%20%22id%22%3A%20%221234567890%22%2C%0A%20%20%20%20%22method%22%3A%20%22getChangesSince%22%2C%0A%20%20%20%20%22params%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22collection%22%3A%20%22test%22%2C%0A%20%20%20%20%20%20%20%20%22timestamp%22%3A%2019021723721%0A%20%20%20%20%7D%0A%7D")'>
+            Send Request
+          </button>
+        </div>
+        <p>Gets all changes on a collection since a certain timestamp</p>
+      </div>
+
+      <br>
+
+       <br>
+<h4>Parameters</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'object',
+  'properties': {
+    'collection': {
+      'type': 'string',
+      'description': 'The name of the collection to get',
+      'default': 'test'
+    },
+    'timestamp': {
+      'type': 'integer',
+      'description': 'Time in the nearest millisecond since the last update',
+      'default': 19021723721
+    }
+  },
+  'required': [
+    'collection'
+  ]
+}</pre>" data-html="true">
+  <td>params</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'string',
+  'description': 'The name of the collection to get',
+  'default': 'test'
+}</pre>" data-html="true">
+  <td>params.collection</td>
+  <td>string</td>
+  <td>The name of the collection to get</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+  'type': 'integer',
+  'description': 'Time in the nearest millisecond since the last update',
+  'default': 19021723721
+}</pre>" data-html="true">
+  <td>params?.timestamp</td>
+  <td>integer</td>
+  <td>Time in the nearest millisecond since the last update</td>
+</tr>
+
+  </table>
+</div> <br>
+<h4>Result</h4>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'object',
+    'properties': {
+        'changeItems': {
+            'type': 'array',
+            'description': 'An array of change items for this change list'
+        },
+        'collection': {
+            'type': 'string',
+            'description': 'The name of the collectiont that this change list is for'
+        }
+    },
+    'required': [
+        'changeItems',
+        'collection'
+    ]
+}</pre>" data-html="true">
+  <td>result</td>
+  <td>object</td>
+  <td></td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'array',
+    'description': 'An array of change items for this change list'
+}</pre>" data-html="true">
+  <td>result.changeItems</td>
+  <td>array</td>
+  <td>An array of change items for this change list</td>
+</tr>
+<tr tabindex="1" data-trigger="hover focus" data-toggle="popover" data-content="<pre class='schema-preview'>{
+    'type': 'string',
+    'description': 'The name of the collectiont that this change list is for'
+}</pre>" data-html="true">
+  <td>result.collection</td>
+  <td>string</td>
+  <td>The name of the collectiont that this change list is for</td>
+</tr>
+
+  </table>
+</div> 
+    </div>
+  </div>
+</div>
+<br>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="send-request-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Send request</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="form-group row">
+              <label for="send-request-url" class="col-md-2 col-sm-12 col-form-label">URL</label>
+              <div class="col-md-10 col-sm-12">
+                <input type="text" class="form-control" id="send-request-url">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="send-request-request" class="col-md-2 col-sm-12 col-form-label">Request</label>
+              <div class="col-md-10 col-sm-12">
+                <textarea class="form-control" id="send-request-request" wrap="soft"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="url" class="col-md-2 col-sm-12 col-form-label"></label>
+              <div class="col-md-10 col-sm-12">
+                <button type="button" class="btn btn-primary btn-block" onclick="sendRequest()">Send</button>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="send-request-response" class="col-md-2 col-sm-12 col-form-label">Response</label>
+              <div class="col-md-10 col-sm-12">
+                <textarea class="form-control" id="send-request-response"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="show-example-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Show example</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="form-group row">
+              <label for="show-example-request" class="col-md-2 col-sm-12 col-form-label">Request</label>
+              <div class="col-md-10 col-sm-12">
+                <textarea class="form-control" id="show-example-request"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="show-example-response" class="col-md-2 col-sm-12 col-form-label">Response</label>
+              <div class="col-md-10 col-sm-12">
+                <textarea class="form-control" id="show-example-response"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

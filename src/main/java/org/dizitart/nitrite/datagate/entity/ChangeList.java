@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A Class representing a list of changes
+ * A Class representing a list of changeItems
  *
  * @author tareq
  */
@@ -19,6 +19,6 @@ import lombok.Setter;
 @Setter
 public class ChangeList {
 
-  private List<ChangeItem> changes = new ArrayList<>();
+  private List<ChangeItem> changeItems = new ArrayList<>();
   private String collection;
 }

@@ -22,7 +22,7 @@ import org.dizitart.nitrite.datagate.session.DataGateSession;
 public class DataGateService {
 
   public static final String GET_CHANGES_SINCE = "getChangesSince";
-  public static final String GET_COLLECTION = "getCollection";
+  public static final String GET_COLLECTION_DATA = "getCollectionData";
   public static final String CHANGE = "change";
   public static final String SUBSCRIBE = "subscribe";
   public static final String AUTHENTICATE = "authenticate";
@@ -75,9 +75,10 @@ public class DataGateService {
    * Subscribes the session to changes in a collection
    *
    * @param collection the collection to subscribe to
+   * @param listenerId the ID of the listener on the client side
    */
-  public void subscribe(String collection) {
-    session.subscribeToCollection(collection);
+  public void subscribe(String collection, String listenerId) {
+    session.subscribeToCollection(collection, listenerId);
   }
 
   /**
