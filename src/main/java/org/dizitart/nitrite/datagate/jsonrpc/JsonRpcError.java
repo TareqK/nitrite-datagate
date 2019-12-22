@@ -5,6 +5,7 @@
  */
 package org.dizitart.nitrite.datagate.jsonrpc;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +17,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class JsonRpcError {
 
-    private Integer code;
-    private String message;
-    private Object data;
-    
-    public static final JsonRpcError METHOD_NOT_FOUND = JsonRpcError.builder().code(-32601).message("Method Not Found").build();
-            
-            
+  public JsonRpcError() {
+
+  }
+  private Integer code;
+  private String message;
+  private Object data;
+
+  public static final JsonRpcError METHOD_NOT_FOUND = JsonRpcError.builder().code(-32601).message("Method Not Found").build();
+
 }

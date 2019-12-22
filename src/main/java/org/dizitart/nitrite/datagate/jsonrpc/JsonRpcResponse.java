@@ -5,6 +5,7 @@
  */
 package org.dizitart.nitrite.datagate.jsonrpc;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +17,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class JsonRpcResponse {
-    
-    private final String jsonrpc ="2.0";
-    private Object result;
-    private JsonRpcError error;
-    private String id;
+
+  public JsonRpcResponse() {
+
+  }
+  private final String jsonrpc = "2.0";
+  private Object result;
+  private JsonRpcError error;
+  private String id;
 }

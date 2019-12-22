@@ -7,7 +7,7 @@ package org.dizitart.nitrite.datagate.jsonrpc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,17 +20,24 @@ import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse.JsonRpcResponseBuil
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class JsonRpcRequest {
-    
-    private final String jsonrpc = "2.0";
-    private String method;
-    private Map<String,String> params;
-    private String id;
-    public <T> T getParamAs(String name, Class<T> clazz) throws IOException{
-        return new ObjectMapper().readValue(params.get(name),clazz);
-    }
-    
-    public JsonRpcResponseBuilder responseBuilder(){
-        return JsonRpcResponse.builder().id(id);
-    }
+
+  public JsonRpcRequest() {
+
+  }
+  private final String jsonrpc = "2.0";
+  private String method;
+  private Object params;
+  private String id;
+
+  public <T> T getParamAs(Class<T> clazz) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    String raw = mapper.writeValueAsString(params);
+    return new ObjectMapper().readValue(raw, clazz);
+  }
+
+  public JsonRpcResponseBuilder responseBuilder() {
+    return JsonRpcResponse.builder().id(id);
+  }
 }

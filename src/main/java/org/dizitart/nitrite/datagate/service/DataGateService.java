@@ -5,8 +5,8 @@
  */
 package org.dizitart.nitrite.datagate.service;
 
-import org.dizitart.nitrite.datagate.session.DataGateSession;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
+import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /**
  *
@@ -14,21 +14,24 @@ import org.dizitart.nitrite.datagate.entity.ChangeList;
  */
 public interface DataGateService {
 
-    public static final String GET_CHANGES_SINCE = "getChangesSince";
-    public static final String GET_COLLECTION = "getCollection";
-    public static final String CHANGE = "change";
-    public static final String SUBSCRIBE = "subscribe";
+  public static final String GET_CHANGES_SINCE = "getChangesSince";
+  public static final String GET_COLLECTION = "getCollection";
+  public static final String CHANGE = "change";
+  public static final String SUBSCRIBE = "subscribe";
+  public static final String AUTHENTICATE = "authenticate";
 
-    String getUserName();
+  String getUserName();
 
-    void setUserName(String username);
+  void setUserName(String username);
 
-    ChangeList getChangesSince(String collectionName, long timeStamp);
+  ChangeList getChangesSince(String collectionName, long timeStamp);
 
-    ChangeList getCollection(String collectionName);
+  ChangeList getCollection(String collectionName);
 
-    void subscribe(DataGateSession endpoint,String collectionName);
-    
-    void change(ChangeList changeList);
+  void subscribe(DataGateSession endpoint, String collectionName);
+
+  void change(ChangeList changeList);
+
+  boolean authenticate(DataGateSession session, String username, String password);
 
 }

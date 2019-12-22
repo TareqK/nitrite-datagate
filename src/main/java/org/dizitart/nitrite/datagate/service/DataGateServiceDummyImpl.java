@@ -6,11 +6,12 @@
 package org.dizitart.nitrite.datagate.service;
 
 import org.dizitart.nitrite.datagate.bus.DataGateBus;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
+import org.dizitart.nitrite.datagate.factory.DataGateAuthenticatorFactory;
 import org.dizitart.nitrite.datagate.factory.DataGateBusFactory;
 import org.dizitart.nitrite.datagate.factory.DataGateChangeListRepositoryFactory;
 import org.dizitart.nitrite.datagate.repository.DataGateChangeListRepository;
+import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /**
  *
@@ -18,40 +19,47 @@ import org.dizitart.nitrite.datagate.repository.DataGateChangeListRepository;
  */
 public class DataGateServiceDummyImpl implements DataGateService {
 
-    private String username;
-    private DataGateBus bus = DataGateBusFactory.getInstance().get();
-    private  DataGateChangeListRepository getRepository(){
-         return DataGateChangeListRepositoryFactory.getInstance().get(getUserName());
-    }
-    @Override
-    public String getUserName() {
-        return this.username;
-    }
+  private String username;
+  private DataGateBus bus = DataGateBusFactory.getInstance().get();
 
-    @Override
-    public void setUserName(String username) {
-        this.username = username;
-    }
+  private DataGateChangeListRepository getRepository() {
+    return DataGateChangeListRepositoryFactory.getInstance().get(getUserName());
+  }
 
-    @Override
-    public ChangeList getChangesSince(String collectionName, long timeStamp) {
-        return getRepository().getSince(collectionName, timeStamp);
-    }
+  @Override
+  public String getUserName() {
+    return this.username;
+  }
 
-    @Override
-    public ChangeList getCollection(String collectionName) {
-        return getRepository().getAll(collectionName);
-    }
+  @Override
+  public void setUserName(String username) {
+    this.username = username;
+  }
 
-    @Override
-    public void change(ChangeList changeList) {
-        getRepository().update(changeList);
-        bus.publish(changeList, getUserName());
-    }
+  @Override
+  public ChangeList getChangesSince(String collectionName, long timeStamp) {
+    return getRepository().getSince(collectionName, timeStamp);
+  }
 
-    @Override
-    public void subscribe(DataGateSession endpoint , String collectionName) {
-        endpoint.listenToCollection(collectionName);
-    }
+  @Override
+  public ChangeList getCollection(String collectionName) {
+    return getRepository().getAll(collectionName);
+  }
+
+  @Override
+  public void change(ChangeList changeList) {
+    getRepository().update(changeList);
+    bus.publish(changeList, getUserName());
+  }
+
+  @Override
+  public void subscribe(DataGateSession endpoint, String collectionName) {
+    endpoint.listenToCollection(collectionName);
+  }
+
+  @Override
+  public boolean authenticate(DataGateSession session, String username, String password) {
+    return DataGateAuthenticatorFactory.getInstance().get().authenticate(session, username, password);
+  }
 
 }

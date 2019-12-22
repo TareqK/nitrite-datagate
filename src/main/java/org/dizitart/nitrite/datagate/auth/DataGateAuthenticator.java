@@ -1,8 +1,7 @@
 package org.dizitart.nitrite.datagate.auth;
 
-import java.util.Base64;
 import java.util.logging.Logger;
-import javax.websocket.Session;
+import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,24 +15,20 @@ import javax.websocket.Session;
  */
 public abstract class DataGateAuthenticator {
 
-    private static final String BASIC = "Basic";
-    private static final Logger LOG = Logger.getLogger(DataGateAuthenticator.class.getName());
+  private static final Logger LOG = Logger.getLogger(DataGateAuthenticator.class.getName());
 
-    public boolean authenticate(Session session, String authorization) {
+  public boolean authenticate(DataGateSession session, String username, String password) {
 
-        try {
-            String base64 = authorization.substring(authorization.lastIndexOf(BASIC) + 1).strip();
-            String decoded = new String(Base64.getDecoder().decode(base64));
-            String[] credentials = decoded.split(":");
-            String username = credentials[0];
-            String password = credentials[1];
-            session.getUserProperties().put("username", username);
-            return doAuthentication(username, password);
-        } catch (Exception ex) {
-            LOG.info(ex.getMessage());
-            return false;
-        }
+    try {
+      session.getSession().getUserProperties().put("username", username);
+      boolean authenticated = doAuthentication(username, password);
+      session.setAuthenticated(authenticated);
+      return authenticated;
+    } catch (Exception ex) {
+      LOG.info(ex.getMessage());
+      return false;
     }
+  }
 
-    abstract boolean doAuthentication(String username, String password);
+  abstract boolean doAuthentication(String username, String password);
 }
