@@ -1,0 +1,157 @@
+{
+  "$schema": "https://rawgit.com/mzernetsch/jrgen/master/jrgen-spec.schema.json",
+  "jrgen": "1.1",
+  "jsonrpc": "2.0",
+  "info": {
+    "title": "Nitrite Datagate API ",
+    "description": [
+      "An API to synchronize datagate clients with the datagate server",
+      "This api follows the json-rpc 2.0 specification. More information available at http://www.jsonrpc.org/specification."
+    ],
+    "version": "1.0"
+  },
+  "definitions": {
+    "changeItem": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "description": "The ID of the entity to change"
+        },
+        "_timestamp": {
+          "type": "integer",
+          "description": "The timestamp of this change, to the nearest millisecond"
+        },
+        "changes": {
+          "type": "object",
+          "description": "the changes that happened"
+        }
+      },
+      "required": ["_id", "_timestamp", "changes"]
+    },
+    "changeList": {
+      "type": "object",
+      "properties": {
+        "changeItems": {
+          "type": "array",
+          "description": "An array of change items for this change list"
+        },
+        "collection": {
+          "type": "string",
+          "description": "The name of the collectiont that this change list is for"
+        }
+      },
+      "required": ["changeItems", "collection"]
+    }
+  },
+  "methods": {
+    "authenticate": {
+      "summary": "Authenticates the current session",
+      "description": "Authenticates the user using the provided credentials and creates a new session.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "description": "Username of the user to authenticate.",
+            "default": "test"
+          },
+          "password": {
+            "description": "Password of the user to authenticate.",
+            "default": "test"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "type": "boolean",
+            "description": "Whether the credentials are correct or not",
+            "default": true
+          }
+        }
+      }
+    },
+    "subscribe": {
+      "summary": "Subscribes to changes on a collection. Can return multiple responses, depending on if there are multiple updates",
+      "params": {
+        "type": "object",
+        "properties": {
+          "collection": {
+            "description": "The name of the collection to subscribe to",
+            "default": "test"
+          }
+        },
+        "required": ["collection"]
+      },
+      "result": {
+        "$ref": "#/definitions/changeList"
+      }
+    },
+    "unsubscribe": {
+      "summary": "Unsubscribes to changes on a collection",
+      "params": {
+        "type": "object",
+        "properties": {
+          "collection": {
+            "description": "The name of the collection to unsubscribe from",
+            "default": "test"
+          }
+        },
+        "required": ["collection"]
+      }
+    },
+    "change": {
+      "summary": "Applies Changes to a collection",
+      "params": {
+        "type": "object",
+        "properties": {
+          "changeList": {
+            "$ref": "#/definitions/changeList"
+          }
+        },
+        "required": ["changeList"]
+      }
+    },
+    "getCollectionData": {
+      "summary": "Gets all the data of a  collection",
+      "params": {
+        "type": "object",
+        "properties": {
+          "collection": {
+            "type": "string",
+            "description": "The name of the collection to get",
+            "default": "test"
+          }
+        },
+        "required": ["collection"]
+      },
+      "result": {
+        "$ref": "#/definitions/changeList"
+      }
+    },
+    "getChangesSince": {
+      "summary": "Gets all changes on a collection since a certain timestamp",
+      "params": {
+        "type": "object",
+        "properties": {
+          "collection": {
+            "type": "string",
+            "description": "The name of the collection to get",
+            "default": "test"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Time in the nearest millisecond since the last update",
+            "default": 19021723721
+          }
+        },
+        "required": ["collection"]
+      },
+      "result": {
+        "$ref": "#/definitions/changeList"
+      }
+    }
+  }
+}
