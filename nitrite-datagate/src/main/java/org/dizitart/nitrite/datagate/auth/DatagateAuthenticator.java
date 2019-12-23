@@ -13,9 +13,9 @@ import org.dizitart.nitrite.datagate.session.DataGateSession;
  *
  * @author tareq
  */
-public abstract class DataGateAuthenticator {
+public abstract class DatagateAuthenticator {
 
-  private static final Logger LOG = Logger.getLogger(DataGateAuthenticator.class.getName());
+  private static final Logger LOG = Logger.getLogger(DatagateAuthenticator.class.getName());
 
   /**
    * Authenticates a user's session. If they are authenticated, then this marks the session as authenticated and inserts the username into
@@ -46,5 +46,5 @@ public abstract class DataGateAuthenticator {
    * @param password the password to check
    * @return true if the user is authenticated, false otherwise
    */
-  abstract boolean doAuthentication(String username, String password);
+  protected abstract boolean doAuthentication(String username, String password);
 }

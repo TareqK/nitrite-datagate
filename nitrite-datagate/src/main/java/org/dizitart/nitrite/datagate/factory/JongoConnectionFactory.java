@@ -15,6 +15,10 @@ public class JongoConnectionFactory {
 
   private static JongoConnectionFactory instance = getInstance();
 
+  private JongoConnectionFactory() {
+
+  }
+
   public static final JongoConnectionFactory getInstance() {
     if (instance == null) {
       instance = new JongoConnectionFactory();

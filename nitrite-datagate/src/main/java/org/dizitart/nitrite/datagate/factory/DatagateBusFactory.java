@@ -14,19 +14,19 @@ import org.dizitart.nitrite.datagate.bus.DataGateBusDefaultImpl;
  *
  * @author tareq
  */
-public class DataGateBusFactory {
+public class DatagateBusFactory {
 
-  private static DataGateBusFactory instance = getInstance();
+  private static DatagateBusFactory instance = getInstance();
   private DataGateBus bus = new DataGateBusDefaultImpl();
-  private static final Logger LOG = Logger.getLogger(DataGateBusFactory.class.getName());
+  private static final Logger LOG = Logger.getLogger(DatagateBusFactory.class.getName());
 
-  private DataGateBusFactory() {
+  private DatagateBusFactory() {
 
   }
 
-  public static final DataGateBusFactory getInstance() {
+  public static final DatagateBusFactory getInstance() {
     if (instance == null) {
-      instance = new DataGateBusFactory();
+      instance = new DatagateBusFactory();
     }
     return instance;
   }

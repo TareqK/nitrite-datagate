@@ -12,17 +12,17 @@ import org.dizitart.nitrite.datagate.session.DataGateSession;
  *
  * @author tareq
  */
-public class DataGateServiceFactory {
+public class DatagateServiceFactory {
 
-  private static DataGateServiceFactory instance = getInstance();
+  private static DatagateServiceFactory instance = getInstance();
 
-  private DataGateServiceFactory() {
+  private DatagateServiceFactory() {
 
   }
 
-  public static DataGateServiceFactory getInstance() {
+  public static DatagateServiceFactory getInstance() {
     if (instance == null) {
-      instance = new DataGateServiceFactory();
+      instance = new DatagateServiceFactory();
     }
     return instance;
   }

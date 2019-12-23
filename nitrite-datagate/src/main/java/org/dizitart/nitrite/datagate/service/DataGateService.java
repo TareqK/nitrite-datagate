@@ -9,9 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.dizitart.nitrite.datagate.bus.DataGateBus;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
-import org.dizitart.nitrite.datagate.factory.DataGateAuthenticatorFactory;
-import org.dizitart.nitrite.datagate.factory.DataGateBusFactory;
-import org.dizitart.nitrite.datagate.factory.DataGateChangeListRepositoryFactory;
+import org.dizitart.nitrite.datagate.factory.DatagateAuthenticatorFactory;
+import org.dizitart.nitrite.datagate.factory.DatagateBusFactory;
+import org.dizitart.nitrite.datagate.factory.DatagateChangeListRepositoryFactory;
 import org.dizitart.nitrite.datagate.repository.DataGateChangeListRepository;
 import org.dizitart.nitrite.datagate.session.DataGateSession;
 
@@ -28,7 +28,7 @@ public class DataGateService {
   public static final String AUTHENTICATE = "authenticate";
   public static final String UNSUBSCRIBE = "unsubscribe";
 
-  private final DataGateBus bus = DataGateBusFactory.getInstance().get();
+  private final DataGateBus bus = DatagateBusFactory.getInstance().get();
   private DataGateChangeListRepository repository;
   @Getter
   @Setter
@@ -45,7 +45,7 @@ public class DataGateService {
 
   private DataGateChangeListRepository getRepository() {
     if (repository == null) {
-      repository = DataGateChangeListRepositoryFactory.getInstance().get(getUserName());
+      repository = DatagateChangeListRepositoryFactory.getInstance().get(getUserName());
     }
     return repository;
   }
@@ -109,7 +109,7 @@ public class DataGateService {
    * @return true if authenticated, false otherwise
    */
   public boolean authenticate(String username, String password) {
-    return DataGateAuthenticatorFactory.getInstance().get().authenticate(session, username, password);
+    return DatagateAuthenticatorFactory.getInstance().get().authenticate(session, username, password);
   }
 
 }

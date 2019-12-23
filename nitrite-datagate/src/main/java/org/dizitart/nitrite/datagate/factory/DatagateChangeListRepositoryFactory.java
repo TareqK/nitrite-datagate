@@ -14,19 +14,19 @@ import org.dizitart.nitrite.datagate.repository.DataGateChangeListRepositoryDefa
  *
  * @author tareq
  */
-public class DataGateChangeListRepositoryFactory {
+public class DatagateChangeListRepositoryFactory {
 
-  private static DataGateChangeListRepositoryFactory instance = getInstance();
+  private static DatagateChangeListRepositoryFactory instance = getInstance();
   private Class<? extends DataGateChangeListRepository> repositoryClazz = DataGateChangeListRepositoryDefaultImpl.class;
-  private static final Logger LOG = Logger.getLogger(DataGateChangeListRepositoryFactory.class.getName());
+  private static final Logger LOG = Logger.getLogger(DatagateChangeListRepositoryFactory.class.getName());
 
-  private DataGateChangeListRepositoryFactory() {
+  private DatagateChangeListRepositoryFactory() {
 
   }
 
-  public static final DataGateChangeListRepositoryFactory getInstance() {
+  public static final DatagateChangeListRepositoryFactory getInstance() {
     if (instance == null) {
-      instance = new DataGateChangeListRepositoryFactory();
+      instance = new DatagateChangeListRepositoryFactory();
     }
     return instance;
   }

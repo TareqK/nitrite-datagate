@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
-import org.dizitart.nitrite.datagate.factory.DataGateBusFactory;
-import org.dizitart.nitrite.datagate.factory.DataGateServiceFactory;
+import org.dizitart.nitrite.datagate.factory.DatagateBusFactory;
+import org.dizitart.nitrite.datagate.factory.DatagateServiceFactory;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcError;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcRequest;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse;
@@ -60,13 +60,13 @@ public class DataGateSession {
   @OnMessage
   public void onMessage(Session session, JsonRpcRequest request) throws IOException {
     try {
-      DataGateService dataGateService = DataGateServiceFactory.getInstance().get(this);
+      DataGateService dataGateService = DatagateServiceFactory.getInstance().get(this);
       JsonRpcResponse response = null;
       if (!authenticated && StringUtils.equals(request.getMethod(), DataGateService.AUTHENTICATE)) {
         AuthenticationRequest authenticationRequest = request.getParamAs(AuthenticationRequest.class);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         authenticationResponse.setAuthenticated(dataGateService.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-        DataGateBusFactory.getInstance().get().subscribe(this);
+        DatagateBusFactory.getInstance().get().subscribe(this);
         response = request.responseBuilder().result(authenticationResponse).build();
       } else {
         switch (request.getMethod()) {
@@ -111,7 +111,7 @@ public class DataGateSession {
 
   @OnClose
   public void onClose(Session session) throws IOException {
-    DataGateBusFactory.getInstance().get().unsubscribe(this);
+    DatagateBusFactory.getInstance().get().unsubscribe(this);
   }
 
   @OnError

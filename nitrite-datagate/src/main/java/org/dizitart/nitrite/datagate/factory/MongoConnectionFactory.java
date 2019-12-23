@@ -29,6 +29,10 @@ public class MongoConnectionFactory {
   private String password = null;
   private boolean sslEnabled = false;
 
+  private MongoConnectionFactory() {
+
+  }
+
   public static final MongoConnectionFactory getInstance() {
     if (instance == null) {
       instance = new MongoConnectionFactory();
