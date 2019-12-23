@@ -20,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChangeItem {
 
-  private String _id;
-  private long _timestamp;
+  private String nitriteId;
+  private long timestamp;
   private Map<String, Object> changes = new LinkedHashMap<>();
 }
