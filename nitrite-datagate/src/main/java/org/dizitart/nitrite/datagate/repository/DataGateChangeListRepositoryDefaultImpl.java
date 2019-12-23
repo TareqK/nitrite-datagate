@@ -5,6 +5,7 @@
  */
 package org.dizitart.nitrite.datagate.repository;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dizitart.nitrite.datagate.entity.ChangeItem;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
 
@@ -17,14 +18,15 @@ public class DataGateChangeListRepositoryDefaultImpl extends DataGateChangeListR
   @Override
   public void updateCollectionData(ChangeList changeList) {
     changeList.getChangeItems().parallelStream().forEach(change -> {
-      ChangeItem foundItem = getUserCollection(changeList.getCollection()).findOne("{nitriteId:{$eq:#}}", change.getNitriteId()).as(ChangeItem.class);
-      if (foundItem == null) {
-        getUserCollection(changeList.getCollection()).insert(change);
-      } else if (foundItem.getTimestamp() <= change.getTimestamp()) {
-        foundItem.getChanges().putAll(change.getChanges());
-        foundItem.setNitriteId(change.getNitriteId());
-        foundItem.setTimestamp(change.getTimestamp());
-        getUserCollection(changeList.getCollection()).update("{nitriteId:{$eq:#}}", change.getNitriteId()).upsert().with(foundItem);
+      if (!StringUtils.isEmpty(change.getNitriteId())) {
+        if (change.getData() == null || change.getData().keySet().isEmpty()) {
+          getUserCollection(changeList.getCollection()).remove("{nitriteId:{$eq:#}}", change.getNitriteId());
+        } else {
+          ChangeItem foundItem = getUserCollection(changeList.getCollection()).findOne("{nitriteId:{$eq:#}}", change.getNitriteId()).as(ChangeItem.class);
+          if (foundItem == null || foundItem.getTimestamp() <= change.getTimestamp()) {
+            getUserCollection(changeList.getCollection()).update("{nitriteId:{$eq:#}}", change.getNitriteId()).upsert().with(change);
+          }
+        }
       }
     });
 

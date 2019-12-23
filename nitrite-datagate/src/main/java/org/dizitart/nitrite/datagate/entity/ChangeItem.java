@@ -22,5 +22,5 @@ public class ChangeItem {
 
   private String nitriteId;
   private long timestamp;
-  private Map<String, Object> changes = new LinkedHashMap<>();
+  private Map<String, Object> data = new LinkedHashMap<>();
 }

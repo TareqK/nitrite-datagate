@@ -14,20 +14,20 @@
     "changeItem": {
       "type": "object",
       "properties": {
-        "_id": {
+        "nitriteId": {
           "type": "string",
           "description": "The ID of the entity to change"
         },
-        "_timestamp": {
+        "timestamp": {
           "type": "integer",
           "description": "The timestamp of this change, to the nearest millisecond"
         },
-        "changes": {
+        "data": {
           "type": "object",
-          "description": "the changes that happened"
+          "description": "the data to that the change has occured on.If the data sent is empty or null, then the entity is deleted"
         }
       },
-      "required": ["_id", "_timestamp", "changes"]
+      "required": ["nitriteId", "timestamp", "data"]
     },
     "changeList": {
       "type": "object",
