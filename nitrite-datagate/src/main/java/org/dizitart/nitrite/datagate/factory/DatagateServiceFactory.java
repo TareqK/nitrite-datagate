@@ -6,7 +6,7 @@
 package org.dizitart.nitrite.datagate.factory;
 
 import org.dizitart.nitrite.datagate.service.DataGateService;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
+import org.dizitart.nitrite.datagate.handler.DataGateHandler;
 
 /**
  *
@@ -27,7 +27,7 @@ public class DatagateServiceFactory {
     return instance;
   }
 
-  public DataGateService get(DataGateSession session) {
+  public DataGateService get(DataGateHandler session) {
     DataGateService service = new DataGateService();
     service.setSession(session);
     return service;

@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.request;
+package org.dizitart.nitrite.datagate.jsonrpc.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.dizitart.nitrite.datagate.entity.ChangeList;
 
 /**
  *
@@ -17,8 +16,8 @@ import org.dizitart.nitrite.datagate.entity.ChangeList;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChangeRequest {
+public class AuthenticationRequest {
 
-  private ChangeList changeList;
-
+  private String username;
+  private String password;
 }

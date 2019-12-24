@@ -3,20 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.session;
+package org.dizitart.nitrite.datagate.handler;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Logger;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
 import org.dizitart.nitrite.datagate.factory.DatagateBusFactory;
@@ -24,13 +17,11 @@ import org.dizitart.nitrite.datagate.factory.DatagateServiceFactory;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcError;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcRequest;
 import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse;
-import org.dizitart.nitrite.datagate.jsonrpc.decoder.JsonRpcDecoder;
-import org.dizitart.nitrite.datagate.jsonrpc.encoder.JsonRpcEncoder;
-import org.dizitart.nitrite.datagate.request.AuthenticationRequest;
-import org.dizitart.nitrite.datagate.request.ChangeRequest;
-import org.dizitart.nitrite.datagate.request.ChangesSinceRequest;
-import org.dizitart.nitrite.datagate.response.AuthenticationResponse;
-import org.dizitart.nitrite.datagate.response.ChangeListResponse;
+import org.dizitart.nitrite.datagate.jsonrpc.request.AuthenticationRequest;
+import org.dizitart.nitrite.datagate.jsonrpc.request.ChangeRequest;
+import org.dizitart.nitrite.datagate.jsonrpc.request.ChangesSinceRequest;
+import org.dizitart.nitrite.datagate.jsonrpc.response.AuthenticationResponse;
+import org.dizitart.nitrite.datagate.jsonrpc.response.ChangeListResponse;
 import org.dizitart.nitrite.datagate.service.DataGateService;
 
 /**
@@ -39,34 +30,22 @@ import org.dizitart.nitrite.datagate.service.DataGateService;
  */
 @Getter
 @Setter
-@ServerEndpoint(value = "/datagate",
- decoders = JsonRpcDecoder.class,
- encoders = JsonRpcEncoder.class)
-@NoArgsConstructor
-public class DataGateSession {
-
-  private static final Logger LOG = Logger.getLogger(DataGateSession.class.getName());
+@Log
+public abstract class DataGateHandler {
 
   private final HashMap<String, String> listeningCollections = new HashMap<>();
-  private Session socketSession;
+  private final HashMap<String, Object> attributes = new HashMap();
+
   private boolean authenticated = false;
 
-  @OnOpen
-  public void onOpen(Session session) throws IOException {
-    this.socketSession = session;
-
-  }
-
-  @OnMessage
-  public void onMessage(Session session, JsonRpcRequest request) throws IOException {
+  public void handleRequest(JsonRpcRequest request) throws IOException {
+    JsonRpcResponse response = null;
     try {
       DataGateService dataGateService = DatagateServiceFactory.getInstance().get(this);
-      JsonRpcResponse response = null;
-      if (!authenticated && StringUtils.equals(request.getMethod(), DataGateService.AUTHENTICATE)) {
+      if (!isAuthenticated() && StringUtils.equals(request.getMethod(), DataGateService.AUTHENTICATE)) {
         AuthenticationRequest authenticationRequest = request.getParamAs(AuthenticationRequest.class);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         authenticationResponse.setAuthenticated(dataGateService.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-        DatagateBusFactory.getInstance().get().subscribe(this);
         response = request.responseBuilder().result(authenticationResponse).build();
       } else {
         switch (request.getMethod()) {
@@ -103,38 +82,42 @@ public class DataGateSession {
             response = request.responseBuilder().error(JsonRpcError.METHOD_NOT_FOUND).build();
         }
       }
-      session.getAsyncRemote().sendObject(response);
     } catch (IOException ex) {
-      LOG.severe(ex.getMessage());
+      log.severe(ex.getMessage());
     }
+    pushResponse(response);
+
   }
 
-  @OnClose
-  public void onClose(Session session) throws IOException {
+  public void unsubscribeFromBus() {
     DatagateBusFactory.getInstance().get().unsubscribe(this);
   }
 
-  @OnError
-  public void onError(Session session, Throwable throwable) {
-    LOG.severe(throwable.getMessage());
+  public void subscribeToBus() {
+    DatagateBusFactory.getInstance().get().subscribe(this);
   }
 
   public void subscribeToCollection(String collectionName, String listener) {
     listeningCollections.put(collectionName, listener);
   }
 
-  public void pushChangeList(ChangeList changeList) {
-    if (this.listeningCollections.containsKey(changeList.getCollection())) {
-      this.socketSession.getAsyncRemote().sendObject(JsonRpcResponse.builder().id(this.listeningCollections.get(changeList.getCollection())).result(changeList).build());
-    }
-
-  }
-
-  public String getSessionUser() {
-    return String.valueOf(socketSession.getUserProperties().get("username"));
-  }
-
   public void unsubscribeFromCollection(String collectionName) {
     listeningCollections.remove(collectionName);
   }
+
+  public void pushChangeList(ChangeList changeList) {
+    if (this.listeningCollections.containsKey(changeList.getCollection())) {
+      pushResponse(JsonRpcResponse.builder().id(this.listeningCollections.get(changeList.getCollection())).result(changeList).build());
+    }
+  }
+
+  public void setUser(String username) {
+    this.getAttributes().put("username", username);
+  }
+
+  public String getUser() {
+    return String.valueOf(getAttributes().get("username"));
+  }
+
+  protected abstract void pushResponse(JsonRpcResponse response);
 }

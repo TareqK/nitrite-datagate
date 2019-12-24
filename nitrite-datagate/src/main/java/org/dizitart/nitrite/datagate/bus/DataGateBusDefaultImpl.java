@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.dizitart.nitrite.datagate.entity.ChangeList;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
+import org.dizitart.nitrite.datagate.handler.DataGateHandler;
 
 /**
  *
@@ -17,32 +17,32 @@ import org.dizitart.nitrite.datagate.session.DataGateSession;
  */
 public class DataGateBusDefaultImpl implements DataGateBus {
 
-  private static final ConcurrentHashMap<String, HashSet<DataGateSession>> MAP = new ConcurrentHashMap<String, HashSet<DataGateSession>>();
+  private static final ConcurrentHashMap<String, HashSet<DataGateHandler>> MAP = new ConcurrentHashMap<String, HashSet<DataGateHandler>>();
 
   @Override
-  public void subscribe(DataGateSession session) {
-    if (!StringUtils.isEmpty(session.getSessionUser())) {
-      if (MAP.get(session.getSessionUser()) == null) {
-        MAP.put(session.getSessionUser(), new HashSet<>());
+  public void subscribe(DataGateHandler session) {
+    if (!StringUtils.isEmpty(session.getUser())) {
+      if (MAP.get(session.getUser()) == null) {
+        MAP.put(session.getUser(), new HashSet<>());
       }
-      MAP.get(session.getSessionUser()).add(session);
+      MAP.get(session.getUser()).add(session);
     }
   }
 
   @Override
-  public void unsubscribe(DataGateSession session) {
-    if (!StringUtils.isEmpty(session.getSessionUser())) {
-      if (MAP.get(session.getSessionUser()) == null) {
-        MAP.put(session.getSessionUser(), new HashSet<>());
+  public void unsubscribe(DataGateHandler session) {
+    if (!StringUtils.isEmpty(session.getUser())) {
+      if (MAP.get(session.getUser()) == null) {
+        MAP.put(session.getUser(), new HashSet<>());
       }
-      MAP.get(session.getSessionUser()).remove(session);
+      MAP.get(session.getUser()).remove(session);
     }
   }
 
   @Override
   public void publish(ChangeList event, String username) {
     if (!StringUtils.isEmpty(username)) {
-      HashSet<DataGateSession> sessions = MAP.get(username);
+      HashSet<DataGateHandler> sessions = MAP.get(username);
       if (sessions != null) {
         sessions.parallelStream().forEach(session -> session.pushChangeList(event));
       }

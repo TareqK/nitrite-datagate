@@ -12,8 +12,8 @@ import org.dizitart.nitrite.datagate.entity.ChangeList;
 import org.dizitart.nitrite.datagate.factory.DatagateAuthenticatorFactory;
 import org.dizitart.nitrite.datagate.factory.DatagateBusFactory;
 import org.dizitart.nitrite.datagate.factory.DatagateChangeListRepositoryFactory;
+import org.dizitart.nitrite.datagate.handler.DataGateHandler;
 import org.dizitart.nitrite.datagate.repository.DataGateChangeListRepository;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /**
  *
@@ -32,7 +32,7 @@ public class DataGateService {
   private DataGateChangeListRepository repository;
   @Getter
   @Setter
-  private DataGateSession session;
+  private DataGateHandler session;
 
   /**
    * Get the username for this service instance
@@ -40,7 +40,7 @@ public class DataGateService {
    * @return the username for this service instance
    */
   public String getUserName() {
-    return this.session.getSessionUser();
+    return this.session.getUser();
   }
 
   private DataGateChangeListRepository getRepository() {
@@ -74,7 +74,7 @@ public class DataGateService {
   /**
    * Subscribes the session to changes in a collection
    *
-   * @param collection the collection to subscribe to
+   * @param collection the collection to subscribeToBus to
    * @param listenerId the ID of the listener on the client side
    */
   public void subscribe(String collection, String listenerId) {
@@ -84,7 +84,7 @@ public class DataGateService {
   /**
    * Unsubscribes the session to changes in a collection
    *
-   * @param collection the collection to unsubscribe from
+   * @param collection the collection to unsubscribeFromBus from
    */
   public void unsubscribe(String collection) {
     session.unsubscribeFromCollection(collection);
@@ -109,7 +109,13 @@ public class DataGateService {
    * @return true if authenticated, false otherwise
    */
   public boolean authenticate(String username, String password) {
-    return DatagateAuthenticatorFactory.getInstance().get().authenticate(session, username, password);
+    boolean authenticated = DatagateAuthenticatorFactory.getInstance().get().authenticate(username, password);
+    this.session.setAuthenticated(authenticated);
+    if (authenticated) {
+      this.session.setUser(username);
+      this.session.subscribeToBus();
+    }
+    return authenticated;
   }
 
 }

@@ -3,21 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.response;
+package org.dizitart.nitrite.datagate.jsonrpc.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.dizitart.nitrite.datagate.entity.ChangeList;
 
 /**
- *
  *
  * @author tareq
  */
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class ChangeListResponse {
 
-  private boolean authenticated;
+  private ChangeList changeList;
 }

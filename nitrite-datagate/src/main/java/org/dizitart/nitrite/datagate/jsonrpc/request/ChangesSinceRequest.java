@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.request;
+package org.dizitart.nitrite.datagate.jsonrpc.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class ChangesSinceRequest {
 
-  private String username;
-  private String password;
+  private String collection;
+  private long timestamp;
 }

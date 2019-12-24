@@ -6,7 +6,7 @@
 package org.dizitart.nitrite.datagate.bus;
 
 import org.dizitart.nitrite.datagate.entity.ChangeList;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
+import org.dizitart.nitrite.datagate.handler.DataGateHandler;
 
 /**
  *
@@ -20,7 +20,7 @@ public interface DataGateBus {
    *
    * @param session the session to subscribe
    */
-  void subscribe(DataGateSession session);
+  void subscribe(DataGateHandler session);
 
   /**
    * Remove this session from listening to this bus. The user property is extracted form the session, and the users session is removed from
@@ -28,7 +28,7 @@ public interface DataGateBus {
    *
    * @param session the session to unsubscribe
    */
-  void unsubscribe(DataGateSession session);
+  void unsubscribe(DataGateHandler session);
 
   /**
    * Publishes a changelist to a user's sessions

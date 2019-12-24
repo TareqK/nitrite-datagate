@@ -1,7 +1,6 @@
 package org.dizitart.nitrite.datagate.auth;
 
 import java.util.logging.Logger;
-import org.dizitart.nitrite.datagate.session.DataGateSession;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,13 +25,10 @@ public abstract class DatagateAuthenticator {
    * @param password the password of the user
    * @return whether the session was authenticated or not
    */
-  public boolean authenticate(DataGateSession session, String username, String password) {
+  public boolean authenticate(String username, String password) {
 
     try {
-      session.getSocketSession().getUserProperties().put("username", username);
-      boolean authenticated = doAuthentication(username, password);
-      session.setAuthenticated(authenticated);
-      return authenticated;
+      return doAuthentication(username, password);
     } catch (Exception ex) {
       LOG.info(ex.getMessage());
       return false;
