@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.dizitart.nitrite.datagate.auth;
+package org.dizitart.nitrite.datagate.entity.user;
 
 /**
  *
  * @author tareq
  */
-public class DatagateAuthenticatorDefaultImpl extends DatagateAuthenticatorJongoImpl {
+public enum Role {
 
+  ROLE_ADMIN, ROLE_USER;
 }
