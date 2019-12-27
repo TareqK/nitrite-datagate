@@ -10,7 +10,6 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <jettyVersion>9.4.9.v20180320</jettyVersion>
-    <bcrypt.version>0.4</bcrypt.version>
   </properties>
   <dependencies>
     <dependency>
@@ -28,11 +27,7 @@
       <artifactId>nitrite-datagate-javaee</artifactId>
       <version>4.0-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>org.mindrot</groupId>
-      <artifactId>jbcrypt</artifactId>
-      <version>${bcrypt.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
