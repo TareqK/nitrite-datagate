@@ -1,4 +1,4 @@
-package org.dizitart.nitritedatagatestanadalonespringboot;
+package org.dizitart.nitrite.datagate.standalone.spring;
 
 import org.dizitart.nitrite.datagate.spring.boot.configuration.DatagateHandlerConfiguration;
 import org.springframework.boot.SpringApplication;

@@ -9,7 +9,7 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>org.dizitart</groupId>
-  <artifactId>nitrite-datagate-stanadalone-spring-boot</artifactId>
+  <artifactId>nitrite-datagate-standalone-spring-boot</artifactId>
   <version>4.0-SNAPSHOT</version>
   <name>nitrite-datagate-stanadalone-spring-boot</name>
   <description>Demo project for Spring Boot</description>
