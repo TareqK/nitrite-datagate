@@ -6,7 +6,7 @@
 package org.dizitart.nitrite.datagate.impl.factory;
 
 import org.dizitart.nitrite.datagate.impl.repository.DatagateUserRepository;
-import org.dizitart.nitrite.datagate.impl.repository.DatagateUserRepositoryDefaultImpl;
+import org.dizitart.nitrite.datagate.impl.repository.DatagateUserRepositoryJongoImpl;
 
 /**
  *
@@ -28,7 +28,7 @@ public class DatagateUserRepositoryFactory {
   }
 
   public DatagateUserRepository get() {
-    return new DatagateUserRepositoryDefaultImpl();
+    return new DatagateUserRepositoryJongoImpl();
   }
 
 }

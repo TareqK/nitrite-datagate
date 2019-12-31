@@ -13,6 +13,12 @@
       <groupId>org.dizitart</groupId>
       <artifactId>nitrite-datagate-api</artifactId>
       <version>4.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
       <type>jar</type>
     </dependency>
     <dependency>

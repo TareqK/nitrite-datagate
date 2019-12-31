@@ -5,6 +5,7 @@
  */
 package org.dizitart.nitrite.datagate.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,10 @@ import lombok.Setter;
 @Setter
 public class DatagateUser {
 
+  @Getter(onMethod_ = {
+    @JsonProperty("uname")})
+  @Setter(onMethod_ = {
+    @JsonProperty("uname")})
   private String username;
   private String password;
   private boolean accountExpired = false;

@@ -23,7 +23,10 @@ public class DatagateUserServiceImpl implements DatagateUserService {
   @Override
   public boolean authenticate(String username, String password) {
     DatagateUser foundUser = userRepository.getUserByUsername(username);
-    return BCryptUtils.validatePassword(foundUser.getPassword(), password);
+    if (foundUser != null) {
+      return BCryptUtils.validatePassword(foundUser.getPassword(), password);
+    }
+    return false;
   }
 
   @Override

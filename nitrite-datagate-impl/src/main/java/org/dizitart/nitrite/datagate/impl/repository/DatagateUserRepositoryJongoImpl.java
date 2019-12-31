@@ -31,13 +31,13 @@ public class DatagateUserRepositoryJongoImpl implements DatagateUserRepository {
 
   private MongoCollection getUsersCollection() {
     MongoCollection collection = getConnection().getCollection(USER_COLLECTION);
-    collection.ensureIndex("username");
+    collection.ensureIndex("{uname : 'hashed'}");
     return collection;
   }
 
   @Override
   public DatagateUser getUserByUsername(String username) {
-    return getUsersCollection().findOne("{username:{$eq:#}}", username).as(DatagateUser.class);
+    return getUsersCollection().findOne("{uname:#}", username).as(DatagateUser.class);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class DatagateUserRepositoryJongoImpl implements DatagateUserRepository {
 
   @Override
   public void update(DatagateUser user) {
-    getUsersCollection().update("{username:{$eq:#}}", user.getUsername()).upsert().with(user);
+    getUsersCollection().update("{uname:#}", user.getUsername()).upsert().with(user);
   }
 
 }
