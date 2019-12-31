@@ -4,3 +4,5 @@
 /nitrite-datagate-standalone-javaee/target/
 /nitrite-datagate-spring-boot/target/
 /nitrite-datagate-javaee/target/
+/nitrite-datagate-impl/target/
+/nitrite-datagate-api/target/

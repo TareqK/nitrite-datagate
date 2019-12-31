@@ -16,11 +16,11 @@ import javax.websocket.server.ServerEndpoint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.dizitart.nitrite.datagate.handler.DataGateHandler;
-import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcRequest;
-import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse;
+import org.dizitart.nitrite.datagate.handler.DatagateHandler;
 import org.dizitart.nitrite.datagate.javaee.decoder.JsonRpcDecoder;
 import org.dizitart.nitrite.datagate.javaee.encoder.JsonRpcEncoder;
+import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcRequest;
+import org.dizitart.nitrite.datagate.jsonrpc.JsonRpcResponse;
 
 /**
  *
@@ -32,7 +32,7 @@ import org.dizitart.nitrite.datagate.javaee.encoder.JsonRpcEncoder;
  decoders = JsonRpcDecoder.class,
  encoders = JsonRpcEncoder.class)
 @NoArgsConstructor
-public class DatagateJsr356HandlerImpl extends DataGateHandler {
+public class DatagateJsr356HandlerImpl extends DatagateHandler {
 
   private static final Logger LOG = Logger.getLogger(DatagateJsr356HandlerImpl.class.getName());
   Session socketSession;

@@ -9,10 +9,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <modules>
-    <module>nitrite-datagate</module>
+    <module>nitrite-datagate-api</module>
+    <module>nitrite-datagate-impl</module>
     <module>nitrite-datagate-javaee</module>
     <module>nitrite-datagate-spring-boot</module>
     <module>nitrite-datagate-standalone-javaee</module>
     <module>nitrite-datagate-standalone-spring-boot</module>
+
   </modules>
 </project>

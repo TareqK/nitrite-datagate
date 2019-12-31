@@ -8,6 +8,8 @@ package org.dizitart.nitrite.datagate.standalone;
 import java.net.URL;
 import java.util.Objects;
 import javax.websocket.server.ServerContainer;
+import org.dizitart.nitrite.datagate.config.Datagate;
+import org.dizitart.nitrite.datagate.impl.config.DatagateConfigurationImpl;
 import org.dizitart.nitrite.datagate.javaee.handler.DatagateJsr356HandlerImpl;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -18,6 +20,7 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 public class Main {
 
   public static void main(String args[]) throws Exception {
+    Datagate.setConfiguration(new DatagateConfigurationImpl());
     startServer();
   }
 
