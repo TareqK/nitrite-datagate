@@ -49,6 +49,11 @@ public abstract class DatagateHandler {
         response = request.responseBuilder().result(authenticationResponse).build();
       } else {
         switch (request.getMethod()) {
+          case DatagateService.AUTHENTICATE:
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+            authenticationResponse.setAuthenticated(true);
+            response = request.responseBuilder().result(authenticationResponse).build();
+            break;
           case DatagateService.GET_COLLECTION_DATA:
             ChangesSinceRequest getCollectionRequest = request.getParamAs(ChangesSinceRequest.class);
             ChangeListResponse getCollectionResponse = new ChangeListResponse();

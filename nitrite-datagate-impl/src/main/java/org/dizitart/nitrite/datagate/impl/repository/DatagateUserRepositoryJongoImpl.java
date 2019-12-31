@@ -5,9 +5,11 @@
  */
 package org.dizitart.nitrite.datagate.impl.repository;
 
+import com.mongodb.DuplicateKeyException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 import org.dizitart.nitrite.datagate.entity.user.DatagateUser;
 import org.dizitart.nitrite.datagate.impl.factory.JongoConnectionFactory;
 import org.jongo.Jongo;
@@ -21,6 +23,7 @@ public class DatagateUserRepositoryJongoImpl implements DatagateUserRepository {
 
   private Jongo jongo;
   private static final String USER_COLLECTION = "datagate-users";
+  private static final Logger LOG = Logger.getLogger(DatagateUserRepositoryJongoImpl.class.getName());
 
   private Jongo getConnection() {
     if (jongo == null) {
@@ -31,7 +34,7 @@ public class DatagateUserRepositoryJongoImpl implements DatagateUserRepository {
 
   private MongoCollection getUsersCollection() {
     MongoCollection collection = getConnection().getCollection(USER_COLLECTION);
-    collection.ensureIndex("{uname : 'hashed'}");
+    collection.ensureIndex("{uname : 1}", "{ unique: true}");
     return collection;
   }
 
@@ -55,8 +58,13 @@ public class DatagateUserRepositoryJongoImpl implements DatagateUserRepository {
   }
 
   @Override
-  public void addUser(DatagateUser user) {
-    getUsersCollection().insert(user);
+  public boolean addUser(DatagateUser user) {
+    try {
+      return getUsersCollection().insert(user).wasAcknowledged();
+    } catch (DuplicateKeyException ex) {
+      LOG.info(ex.getMessage());
+      return false;
+    }
   }
 
   @Override

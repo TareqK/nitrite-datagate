@@ -40,8 +40,9 @@ public interface DatagateUserRepository {
    * Add a new user
    *
    * @param user the user to add
+   * @return true if the user was added successfully, false otherwise
    */
-  void addUser(DatagateUser user);
+  boolean addUser(DatagateUser user);
 
   /**
    * Update an existing user by matching the username
