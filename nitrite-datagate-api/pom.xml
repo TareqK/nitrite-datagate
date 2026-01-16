@@ -11,7 +11,7 @@
     <maven.compiler.target>11</maven.compiler.target>
 
     <lombok.version>1.18.10</lombok.version>
-    <apache.commons.version>3.9</apache.commons.version>
+    <apache.commons.version>3.18.0</apache.commons.version>
 
   </properties>
   <dependencies>
